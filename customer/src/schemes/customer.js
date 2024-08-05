@@ -35,3 +35,9 @@ export function validatePasswordCustomer(object) {
 
 	return passwordSchema.parse(object)
 }
+
+export function validateUserCusomter(object) {
+	const userSchema = customer.pick({ user: true })
+
+	return userSchema.parse(object)
+}

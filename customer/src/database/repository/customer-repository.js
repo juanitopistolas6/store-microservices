@@ -77,4 +77,16 @@ export class CustomerRepository {
 			throw new Error(e.message)
 		}
 	}
+
+	static async Admin({ user }) {
+		try {
+			const customer = await this.findCustomer({ user })
+
+			await customer.updateOne({ type: 'Administrator' })
+
+			return await CustomerModel.findOne({ user })
+		} catch (e) {
+			throw new Error(e.message)
+		}
+	}
 }

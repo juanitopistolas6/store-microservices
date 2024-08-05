@@ -3,6 +3,7 @@ import {
 	validateLoginCustomer,
 	validatePartialCustomer,
 	validatePasswordCustomer,
+	validateUserCusomter,
 } from '../schemes/customer.js'
 import {
 	FormateData,
@@ -120,5 +121,21 @@ export class CustomerService {
 		})
 
 		return FormateData(result, 'data')
+	}
+
+	static async upgradePermissions({ payload }) {
+		try {
+			const data = validateUserCusomter(payload)
+
+			if (!data) return FormateData('Input Error', 'error')
+
+			const { user } = data
+
+			const result = await CustomerRepository.Admin({ user })
+
+			return FormateData(result, 'data')
+		} catch (e) {
+			return FormateData(e.message, 'error')
+		}
 	}
 }
