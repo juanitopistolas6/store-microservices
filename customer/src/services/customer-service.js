@@ -52,7 +52,7 @@ export class CustomerService {
 
 			const { user, password } = data
 
-			const customer = await CustomerRepository.findCustomer(user)
+			const customer = await CustomerRepository.findCustomer({ user })
 
 			const result = await ValidatePassword(
 				password,
@@ -110,9 +110,13 @@ export class CustomerService {
 
 		if (!data) return FormateData('password field not found', 'error')
 
+		const customer = await CustomerRepository.findCustomer({ user })
+
+		const newPassword = await GeneratePassword(data.password, customer.salt)
+
 		const result = await CustomerRepository.updatePassword({
 			user,
-			newPassword: data,
+			newPassword,
 		})
 
 		return FormateData(result, 'data')

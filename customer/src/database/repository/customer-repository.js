@@ -70,7 +70,7 @@ export class CustomerRepository {
 		try {
 			const costumer = await CustomerModel.findOne({ user })
 
-			costumer.updateOne({ password: newPassword })
+			await costumer.updateOne({ password: newPassword })
 
 			return await CustomerModel.findOne({ user })
 		} catch (e) {
