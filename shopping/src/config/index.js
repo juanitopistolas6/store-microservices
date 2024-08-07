@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
 
-if (proccess.env.NODE_ENV === 'dev') {
-	const path = `./env.${proccess.env.NODE_ENV}`
+if (process.env.NODE_ENV === 'dev') {
+	const path = `./env.${process.env.NODE_ENV}`
 	config({ path })
 } else {
 	config()

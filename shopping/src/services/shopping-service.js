@@ -1,1 +1,3 @@
-class ShoppingServices {}
+class ShoppingServices {
+	static async getOrders({}) {}
+}
