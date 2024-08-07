@@ -7,7 +7,7 @@ const orderScheme = new Schema(
 		customerId: { type: String, required: true },
 		status: {
 			type: String,
-			enum: ['pending', 'successful', 'canceled'],
+			enum: ['pending', 'successful', 'cancelled'],
 			default: 'pending',
 		},
 		amount: { type: Number, required: true },
