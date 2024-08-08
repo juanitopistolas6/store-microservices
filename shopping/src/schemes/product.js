@@ -1,6 +1,6 @@
 import zod from 'zod'
 
-const product = zod.object({
+const productSchema = zod.object({
 	_id: zod.string(),
 	name: zod.string(),
 	description: zod.string(),
@@ -11,11 +11,15 @@ const product = zod.object({
 	units: zod.number(),
 })
 
-const productObject = zod.object({
-	product,
-	units: zod.number(),
+const requestBodySchema = zod.object({
+	products: zod.array(
+		zod.object({
+			product: productSchema,
+			units: zod.number(),
+		})
+	),
 })
 
 export function validateProduct(object) {
-	return productObject.safeParse(object)
+	return requestBodySchema.safeParse(object)
 }

@@ -1,16 +1,41 @@
+import { ShoppingServices } from '../services/shopping-service.js'
+import { customerAuth } from './middleware/customer-auth.js'
+
 export default async (app, channel) => {
 	app.get('/whoami', (req, res) => {
 		return res.json({ message: 'your a customer :)' })
 	})
-	app.get('/orders', async (req, res) => {})
+	app.get('/orders', customerAuth, async (req, res) => {
+		const { id } = req.user
 
-	app.post('/order', async () => {})
+		const data = await ShoppingServices.getOrders({ id })
+
+		return res.json(data)
+	})
+
+	app.post('/order', async () => {
+		const { id } = req.user
+
+		const data = await ShoppingServices.createOrder({ id })
+
+		return res.json(data)
+	})
 
 	app.post('/cart', async (req, res) => {})
 
-	app.put('/cart', async (req, res) => {})
+	app.delete('/cart', async (req, res) => {
+		const { id } = req.user
 
-	app.delete('/cart', async (req, res) => {})
+		const data = ShoppingServices.deleteItems({ id })
 
-	app.get('/cart', async (req, res) => {})
+		return res.json(data)
+	})
+
+	app.get('/cart', async (req, res) => {
+		const { id } = req.user
+
+		const data = await ShoppingServices.getCart({ id })
+
+		return res.json(data)
+	})
 }

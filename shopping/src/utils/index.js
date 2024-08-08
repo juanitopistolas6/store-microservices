@@ -7,7 +7,7 @@ export const VerifySignature = async (req) => {
 	try {
 		const auth = req.get('Authorization')
 
-		const data = await jwb.verify(auth, APP_SECRET)
+		const data = await jwb.verify(auth.substring(7), APP_SECRET)
 
 		req.user = data
 
