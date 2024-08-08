@@ -1,4 +1,6 @@
+import { object } from 'zod'
 import { ShoppingRepository } from '../database/repository/shopping-repository.js'
+import { validateProduct } from '../schemes/product.js'
 import { FormateData } from '../utils/index.js'
 
 export class ShoppingServices {
@@ -24,7 +26,23 @@ export class ShoppingServices {
 		}
 	}
 
-	static async addToCart({ id, payload }) {}
+	static async addToCart({ id, data }) {
+		const products = validateProduct(data)
+
+		if (products.error) return FormateData(products.error, 'error')
+
+		try {
+			const result = await ShoppingRepository.ManageCart({
+				idCustomer: id,
+				products: products.data,
+				remove: false,
+			})
+
+			return FormateData(result, 'data')
+		} catch (e) {
+			return FormateData(e.message, 'error')
+		}
+	}
 
 	static async getCart({ id }) {
 		const result = await ShoppingRepository.Cart({ idCustomer: id })
@@ -33,8 +51,12 @@ export class ShoppingServices {
 	}
 
 	static async deleteItems({ id }) {
-		const result = await ShoppingRepository.DeleteCart({ idCustomer: id })
+		try {
+			const result = await ShoppingRepository.DeleteCart({ idCustomer: id })
 
-		return FormateData(result, 'data')
+			return FormateData(result, 'data')
+		} catch (e) {
+			return FormateData(e.message, 'error')
+		}
 	}
 }

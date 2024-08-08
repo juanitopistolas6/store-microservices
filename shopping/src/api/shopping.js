@@ -13,7 +13,7 @@ export default async (app, channel) => {
 		return res.json(data)
 	})
 
-	app.post('/order', async () => {
+	app.post('/order', customerAuth, async (req, res) => {
 		const { id } = req.user
 
 		const data = await ShoppingServices.createOrder({ id })
@@ -21,7 +21,13 @@ export default async (app, channel) => {
 		return res.json(data)
 	})
 
-	app.post('/cart', async (req, res) => {})
+	app.post('/cart', customerAuth, async (req, res) => {
+		const { id } = req.user
+
+		const data = await ShoppingServices.addToCart({ id, data: req.body })
+
+		return res.json(data)
+	})
 
 	app.delete('/cart', async (req, res) => {
 		const { id } = req.user

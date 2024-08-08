@@ -11,7 +11,7 @@ const productSchema = zod.object({
 	units: zod.number(),
 })
 
-const requestBodySchema = zod.object({
+const productSchemaArray = zod.object({
 	products: zod.array(
 		zod.object({
 			product: productSchema,
@@ -20,6 +20,15 @@ const requestBodySchema = zod.object({
 	),
 })
 
+const productSchemeObject = zod.object({
+	product: productSchema,
+	units: zod.number(),
+})
+
+export function validateProductArray(object) {
+	return productSchemaArray.safeParse(object)
+}
+
 export function validateProduct(object) {
-	return requestBodySchema.safeParse(object)
+	return productSchemeObject.safeParse(object)
 }

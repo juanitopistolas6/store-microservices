@@ -64,6 +64,7 @@ export class CustomerService {
 			if (!result) throw new Error('Error introducing credetials')
 
 			const token = await GenerateSignature({
+				id: customer._id,
 				name: customer.name,
 				user: customer.user,
 				type: customer.type,

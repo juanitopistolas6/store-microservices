@@ -13,22 +13,54 @@ export class ShoppingRepository {
 		return cart
 	}
 
-	static async DeleteCart({ idCustomer }) {
+	static async DeleteCartItems({ idCustomer }) {
 		const cart = await Cart.findOne({ idCustomer })
+
+		if (!cart) throw new Error('Cart does not exist')
 
 		await cart.updateOne({ $set: { cart: [] } })
 
 		return await Cart.findOne({ idCustomer })
 	}
 
+	static async CreateCart({ idCustomer, items }) {
+		const newCart = new Cart({ idCustomer, cart: items })
+
+		return await newCart.save()
+	}
+
 	static async ManageCart({ idCustomer, products, remove }) {
+		const cart = await Cart.findOne({ idCustomer })
+
+		if (!cart) return await this.CreateCart({ idCustomer, items: products })
+
 		if (remove) {
-			const cart = await Cart.findOne({ idCustomers })
+			const items = cart.cart.find(
+				(item) => item._id.toString() === products.product._id
+			)
 
-			if (!cart) throw new Error('Cart is empty')
+			if (!items) throw new Error('Product not found in cart.')
 
-			const items = cart.cart
-			// TODO
+			const unitsToUpdate = item.units - products.units
+
+			const update =
+				unitsToUpdate === 0
+					? { $pull: { cart: { 'product._id': products.product._id } } }
+					: { $set: { 'cart.$.units': unitsToUpdate } }
+
+			await cart.updateOne(update)
+
+			return await Cart.findOne({ idCustomer })
+		} else {
+			const item = cart.cart.find(
+				(item) => item.product._id.toString() === products.product._id
+			)
+
+			const add = { $push: { cart: { products } } }
+
+			await cart.updateOne(add)
+
+			return await Cart.findOne({ idCustomer })
 		}
 	}
 
