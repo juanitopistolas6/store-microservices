@@ -50,9 +50,17 @@ export class ShoppingServices {
 		return FormateData(result, 'data')
 	}
 
-	static async deleteItems({ id }) {
+	static async deleteItems({ id, items }) {
 		try {
-			const result = await ShoppingRepository.DeleteCart({ idCustomer: id })
+			const products = validateProduct(items)
+
+			if (products.error) return FormateData(product.error, 'error')
+
+			const result = await ShoppingRepository.ManageCart({
+				idCustomer: id,
+				products: products.data,
+				remove: true,
+			})
 
 			return FormateData(result, 'data')
 		} catch (e) {

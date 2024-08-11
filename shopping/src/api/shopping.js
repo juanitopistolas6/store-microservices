@@ -29,10 +29,10 @@ export default async (app, channel) => {
 		return res.json(data)
 	})
 
-	app.delete('/cart', async (req, res) => {
+	app.delete('/cart', customerAuth, async (req, res) => {
 		const { id } = req.user
 
-		const data = ShoppingServices.deleteItems({ id })
+		const data = await ShoppingServices.deleteItems({ id, items: req.body })
 
 		return res.json(data)
 	})

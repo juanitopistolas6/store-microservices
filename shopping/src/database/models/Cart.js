@@ -7,6 +7,7 @@ const CartSquema = new Schema(
 		idCustomer: { type: String, unique: true, required: true },
 		cart: [
 			{
+				_id: false,
 				product: {
 					_id: { type: String, required: true },
 					name: { type: String },

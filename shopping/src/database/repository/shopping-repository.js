@@ -34,34 +34,44 @@ export class ShoppingRepository {
 
 		if (!cart) return await this.CreateCart({ idCustomer, items: products })
 
+		const itemFound = cart.cart.find(
+			(item) => item.product._id.toString() === products.product._id
+		)
+
 		if (remove) {
-			const items = cart.cart.find(
-				(item) => item._id.toString() === products.product._id
-			)
+			// REMOVER
+			if (!itemFound) throw new Error('Product not found in cart.')
 
-			if (!items) throw new Error('Product not found in cart.')
+			const unitsToUpdate = itemFound.units - products.units
+			console.log(unitsToUpdate)
 
-			const unitsToUpdate = item.units - products.units
-
-			const update =
-				unitsToUpdate === 0
-					? { $pull: { cart: { 'product._id': products.product._id } } }
-					: { $set: { 'cart.$.units': unitsToUpdate } }
-
-			await cart.updateOne(update)
-
-			return await Cart.findOne({ idCustomer })
+			if (unitsToUpdate <= 0) {
+				await Cart.updateOne(
+					{ idCustomer, 'cart.product._id': itemFound.product._id },
+					{ $pull: { cart: { 'product._id': itemFound.product._id } } }
+				)
+			} else {
+				await Cart.updateOne(
+					{ idCustomer, 'cart.product._id': itemFound.product._id },
+					{ $set: { 'cart.$.units': unitsToUpdate } }
+				)
+			}
 		} else {
-			const item = cart.cart.find(
-				(item) => item.product._id.toString() === products.product._id
-			)
-
-			const add = { $push: { cart: { products } } }
-
-			await cart.updateOne(add)
-
-			return await Cart.findOne({ idCustomer })
+			// AÑADIR
+			if (itemFound) {
+				await Cart.updateOne(
+					{ idCustomer, 'cart.product._id': itemFound.product._id },
+					{ $set: { 'cart.$.units': itemFound.units + products.units } }
+				)
+			} else {
+				await Cart.updateOne(
+					{ idCustomer, 'cart.product._id': itemFound.product._id },
+					{ $push: { cart: products } }
+				)
+			}
 		}
+
+		return await Cart.findOne({ idCustomer })
 	}
 
 	static async CreateOrder({ customerId }) {
