@@ -13,6 +13,7 @@ const orderScheme = new Schema(
 		amount: { type: Number, required: true },
 		items: [
 			{
+				_id: false,
 				product: {
 					_id: { type: String, required: true },
 					name: { type: String },
@@ -23,7 +24,7 @@ const orderScheme = new Schema(
 					suplier: { type: String },
 					units: { type: Number },
 				},
-				unit: { type: Number, required: true },
+				units: { type: Number, required: true },
 			},
 		],
 	},

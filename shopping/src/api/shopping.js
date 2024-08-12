@@ -5,7 +5,7 @@ export default async (app, channel) => {
 	app.get('/whoami', (req, res) => {
 		return res.json({ message: 'your a customer :)' })
 	})
-	app.get('/orders', customerAuth, async (req, res) => {
+	app.get('/order', customerAuth, async (req, res) => {
 		const { id } = req.user
 
 		const data = await ShoppingServices.getOrders({ id })
@@ -37,7 +37,7 @@ export default async (app, channel) => {
 		return res.json(data)
 	})
 
-	app.get('/cart', async (req, res) => {
+	app.get('/cart', customerAuth, async (req, res) => {
 		const { id } = req.user
 
 		const data = await ShoppingServices.getCart({ id })

@@ -43,7 +43,7 @@ export class ShoppingRepository {
 			if (!itemFound) throw new Error('Product not found in cart.')
 
 			const unitsToUpdate = itemFound.units - products.units
-			console.log(unitsToUpdate)
+			console.log(itemFound)
 
 			if (unitsToUpdate <= 0) {
 				await Cart.updateOne(
@@ -64,10 +64,7 @@ export class ShoppingRepository {
 					{ $set: { 'cart.$.units': itemFound.units + products.units } }
 				)
 			} else {
-				await Cart.updateOne(
-					{ idCustomer, 'cart.product._id': itemFound.product._id },
-					{ $push: { cart: products } }
-				)
+				await Cart.updateOne({ idCustomer }, { $push: { cart: products } })
 			}
 		}
 
@@ -75,18 +72,20 @@ export class ShoppingRepository {
 	}
 
 	static async CreateOrder({ customerId }) {
-		const cartdb = await Cart.findOne({ idCustomer: customer })
+		const cartdb = await Cart.findOne({ idCustomer: customerId })
 
 		if (!cartdb) throw new Error('Cart not found.')
 		if (!cartdb.cart) throw new Error('Cart is empty.')
 
 		const { cart } = cartdb
 
-		let amount
+		let amount = 0
 
-		cart.cart.forEach((item) => {
+		cart.forEach((item) => {
 			amount += item.product.price * item.units
 		})
+
+		console.log(cart)
 
 		const newOrder = new Order({ customerId, amount, items: cart })
 
