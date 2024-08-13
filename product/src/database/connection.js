@@ -8,6 +8,8 @@ export const connectDatabase = () => {
 		mongoose.connect(DB_URL, {
 			autoIndex: true,
 		})
+
+		console.log('🚀 MongoDB Connected!')
 	} catch (e) {
 		console.log(e.message)
 	}

@@ -16,3 +16,9 @@ export const verifySignature = async (req) => {
 		return false
 	}
 }
+
+export const FormateData = (data, type) => {
+	if (!data) throw new Error('data not found.')
+
+	return { [type]: data }
+}
