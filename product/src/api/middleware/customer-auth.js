@@ -1,4 +1,4 @@
-import { verifySignature } from '../../utils'
+import { verifySignature } from '../../utils/index.js'
 
 export const customerAuth = async (req, res, next) => {
 	const verify = await verifySignature(req)
