@@ -20,4 +20,21 @@ export class ProductsRepository {
 
 		return products
 	}
+
+	static async SelectedProducts({ products }) {
+		const selectedProducts = await Product.find({ _id: { $in: products } })
+
+		return selectedProducts
+	}
+
+	static async newProduct({ product }) {
+		console.log(product)
+		try {
+			const newProduct = new Product(product)
+
+			return newProduct.save()
+		} catch (e) {
+			throw new Error(e.message)
+		}
+	}
 }

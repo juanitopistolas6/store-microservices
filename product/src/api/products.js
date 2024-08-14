@@ -24,9 +24,17 @@ export default async (app, channel) => {
 		return res.json(data)
 	})
 
-	app.get('/products/ids', async (req, res) => {})
+	app.get('/products/ids', async (req, res) => {
+		const data = await ProductsService.getSelectedProducts({ items: req.body })
 
-	app.post('/product', async (req, res) => {})
+		return res.json(data)
+	})
+
+	app.post('/product', async (req, res) => {
+		const data = await ProductsService.createProduct({ product: req.body })
+
+		return res.json(data)
+	})
 
 	app.put('/wishlist', customerAuth, async (req, res) => {
 		const { id } = req.user
@@ -42,9 +50,47 @@ export default async (app, channel) => {
 		return res.json(data.data)
 	})
 
-	app.put('/cart', async (req, res) => {})
+	app.put('/cart', customerAuth, async (req, res) => {
+		const { id } = req.user
 
-	app.delete('/wishlist/:id', async (req, res) => {})
+		const data = await ProductsService.getProductPayload({
+			id,
+			item: req.body,
+			action: '',
+		})
 
-	app.delete('/cart/:id', async (req, res) => {})
+		// TODO: Publicar el mensaje por rabbitmq
+
+		return res.json(data.data)
+	})
+
+	app.delete('/wishlist/:id', async (req, res) => {
+		const { id: itemId } = req.params
+		const { id } = req.user
+
+		const data = await ProductsService.getProductPayload({
+			id,
+			item: itemId,
+			action: '',
+		})
+
+		// TODO: Publicar el mensaje por rabbitmq
+
+		return res.json(data.data)
+	})
+
+	app.delete('/cart/:id', async (req, res) => {
+		const { id: itemId } = req.params
+		const { id } = req.user
+
+		const data = await ProductsService.getProductPayload({
+			id,
+			item: itemId,
+			action: '',
+		})
+
+		// TODO: Publicar el mensaje por rabbitmq
+
+		return res.json(data.data)
+	})
 }

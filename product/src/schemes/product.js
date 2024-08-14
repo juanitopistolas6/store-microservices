@@ -34,3 +34,11 @@ export const validateProductPayload = (object) => {
 
 	return productPayload.parse(object)
 }
+
+export const validateProductArray = (object) => {
+	const scheme = zod.object({
+		products: zod.array(objectIdSchema),
+	})
+
+	return scheme.safeParse(object)
+}

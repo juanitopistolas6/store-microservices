@@ -1,6 +1,11 @@
 import { ProductsRepository } from '../database/repository/products-repository.js'
 import { validateCategory } from '../schemes/categories.js'
-import { validateID, validateProductPayload } from '../schemes/product.js'
+import {
+	validateID,
+	validateProduct,
+	validateProductArray,
+	validateProductPayload,
+} from '../schemes/product.js'
 import { FormateData } from '../utils/index.js'
 
 export class ProductsService {
@@ -29,6 +34,35 @@ export class ProductsService {
 			validateID(id)
 
 			const result = await ProductsRepository.ProductId({ id })
+
+			return FormateData(result, 'data')
+		} catch (e) {
+			return FormateData(e.message, 'error')
+		}
+	}
+
+	static async getSelectedProducts({ items }) {
+		const productsOK = validateProductArray(items)
+
+		if (productsOK.error) return FormateData(productsOK.error, 'error')
+
+		const { products } = productsOK.data
+
+		const result = await ProductsRepository.SelectedProducts({ products })
+
+		return FormateData(result, 'data')
+	}
+
+	static async createProduct({ product }) {
+		const productOK = validateProduct(product)
+
+		if (productOK.error) return FormateData('error', productOK.error)
+
+		try {
+			const { product: productValited } = productOK.data
+			const result = await ProductsRepository.newProduct({
+				product: productValited,
+			})
 
 			return FormateData(result, 'data')
 		} catch (e) {
