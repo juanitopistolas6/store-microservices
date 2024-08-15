@@ -13,6 +13,8 @@ import {
 	ValidatePassword,
 } from '../utils/index.js'
 import { CustomerRepository } from '../database/repository/customer-repository.js'
+import { ACTION_EVENTS } from '../../../product/src/utils/types.js'
+import { validatePartialProduct } from '../schemes/product.js'
 
 export class CustomerService {
 	static async signUp(paylod) {
@@ -137,6 +139,49 @@ export class CustomerService {
 			return FormateData(result, 'data')
 		} catch (e) {
 			return FormateData(e.message, 'error')
+		}
+	}
+
+	async updateCart({ id, product }) {
+		const data = validatePartialProduct(product)
+
+		const result = await CustomerRepository.AddToCart({
+			id,
+			product: data.data,
+		})
+
+		return FormateData(result, 'data')
+	}
+
+	async updateWishlist({ id, product }) {
+		const data = validatePartialProduct(product)
+
+		const result = await CustomerRepository.AddToWishlist({
+			id,
+			product: data.data,
+		})
+
+		return FormateData(result, 'data')
+	}
+
+	SubscribeEvents = async (payload) => {
+		console.log('Triggering.... Customer Events')
+
+		payload = JSON.parse(payload)
+
+		const { event, data } = payload
+
+		const { id, product, units } = data
+
+		switch (event) {
+			case ACTION_EVENTS.ADD_WISHLIST:
+				this.updateWishlist({ id, product })
+				break
+			case ACTION_EVENTS.ADD_CART:
+				this.updateCart({ id, product })
+				break
+			case ACTION_EVENTS.REMOVE_CART:
+				break
 		}
 	}
 }

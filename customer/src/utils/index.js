@@ -69,3 +69,25 @@ export const createChannel = async () => {
 		throw err
 	}
 }
+
+export const SubscribeMessage = async (channel, service) => {
+	await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true })
+	const q = await channel.assertQueue('', { exclusive: true })
+	console.log(` Waiting for messages in queue: ${q.queue}`)
+
+	channel.bindQueue(q.queue, EXCHANGE_NAME, CUSTOMER_SERVICE)
+
+	channel.consume(
+		q.queue,
+		(msg) => {
+			if (msg.content) {
+				console.log('the message is:', msg.content.toString())
+				service.SubscribeEvents(msg.content.toString())
+			}
+			console.log('[X] received')
+		},
+		{
+			noAck: true,
+		}
+	)
+}

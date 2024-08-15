@@ -30,10 +30,9 @@ const Customer = new Schema(
 		wishlist: [
 			{
 				_id: { type: String, required: true },
-				name: { type: String },
-				price: { type: Number },
-				banner: { type: String },
-				available: { type: Boolean },
+				name: { type: String, required: true },
+				price: { type: Number, required: true },
+				banner: { type: String, required: true },
 			},
 		],
 		orders: [

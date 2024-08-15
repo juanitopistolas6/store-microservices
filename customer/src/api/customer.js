@@ -1,8 +1,13 @@
 import { CustomerService } from '../services/customer-service.js'
+import { SubscribeMessage } from '../utils/index.js'
 import { administratorAuth } from './middleware/auth-administrator.js'
 import { customerAuth } from './middleware/auth-customer.js'
 
 export default (app, channel) => {
+	const service = new CustomerService()
+
+	SubscribeMessage(channel, service)
+
 	app.post('/signup', async (req, res) => {
 		const data = await CustomerService.signUp(req.body)
 

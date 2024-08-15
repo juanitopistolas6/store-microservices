@@ -89,4 +89,63 @@ export class CustomerRepository {
 			throw new Error(e.message)
 		}
 	}
+
+	static async AddToCart({ id, product }) {
+		const customer = await CustomerModel.findOne({ _id: id })
+
+		if (!customer) return 'No customer found'
+
+		await customer.updateOne({ $push: { cart: product } })
+
+		return await CustomerModel.findOne({ _id: id })
+	}
+
+	static async AddToWishlist({ id, product }) {
+		const customer = await CustomerModel.findOne({ _id: id })
+
+		if (!customer) return 'No customer found!'
+
+		customer.updateOne({ $push: { wishlist: product } })
+
+		return await CustomerModel.findOne({ _id: id })
+	}
+
+	static async ManageCart({ id, product, units, remove }) {
+		const customer = await CustomerModel.findOne({ _id: id })
+
+		if (!customer) return 'No customer found'
+
+		const itemFound = customer.cart.find(
+			(item) => item._id.toString() === product._id
+		)
+
+		if (remove) {
+			if (!itemFound) throw new Error('Product was not found in customers cart')
+
+			const unitsToUpdate = itemFound.units - units
+
+			if (unitsToUpdate <= 0) {
+				CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product._id },
+					{ $pull: { cart: { 'product._id': product._id } } }
+				)
+			} else {
+				CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product._id },
+					{ $set: { 'cart.$.units': unitsToUpdate } }
+				)
+			}
+		} else {
+			if (itemFound) {
+				CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product._id },
+					{ $set: { 'cart.$.units': itemFound.units + units } }
+				)
+			} else {
+				CustomerModel.updateOne({ _id: id }, { $push: { cart: product } })
+			}
+		}
+
+		return await CustomerModel.findOne({ _id: id })
+	}
 }
