@@ -1,4 +1,5 @@
-import zod, { object } from 'zod'
+import zod from 'zod'
+import { ProductCategory } from './categories.js'
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/
 
@@ -11,7 +12,7 @@ const productSchema = zod.object({
 	name: zod.string(),
 	description: zod.string(),
 	banner: zod.string(),
-	category: zod.string(),
+	category: ProductCategory,
 	price: zod.number(),
 	supplier: zod.string(),
 	units: zod.number(),

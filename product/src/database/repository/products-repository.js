@@ -28,7 +28,6 @@ export class ProductsRepository {
 	}
 
 	static async newProduct({ product }) {
-		console.log(product)
 		try {
 			const newProduct = new Product(product)
 

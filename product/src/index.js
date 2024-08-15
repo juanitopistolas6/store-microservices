@@ -3,8 +3,9 @@ import cors from 'cors'
 import config from './config/index.js'
 import productsApp from './api/products.js'
 import { connectDatabase } from './database/connection.js'
+import { createChannel } from './utils/index.js'
 
-const initServer = () => {
+const initServer = async () => {
 	const { PORT } = config
 	const app = express()
 
@@ -13,7 +14,9 @@ const initServer = () => {
 
 	connectDatabase()
 
-	productsApp(app, '')
+	const channel = await createChannel()
+
+	productsApp(app, channel)
 
 	app
 		.listen(PORT, () => {

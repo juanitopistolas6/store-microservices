@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const ProductCategory = z.enum([
+export const ProductCategory = z.enum([
 	'Mobile Phones',
 	'Computers and Laptops',
 	'Televisions and Home Theater',
