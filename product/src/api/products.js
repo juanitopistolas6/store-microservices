@@ -1,6 +1,10 @@
 import { ProductsService } from '../services/products-service.js'
+import { PublishMessage } from '../utils/index.js'
 import { ACTION_EVENTS } from '../utils/types.js'
 import { customerAuth } from './middleware/customer-auth.js'
+import KEYS from '../config/index.js'
+
+const { CUSTOMER_SERVICE } = KEYS
 
 export default async (app, channel) => {
 	app.get('/products', customerAuth, async (req, res) => {
@@ -49,6 +53,7 @@ export default async (app, channel) => {
 		console.log(data.payload)
 
 		// TODO: Publicar el mensaje por rabbitmq
+		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})
@@ -62,37 +67,41 @@ export default async (app, channel) => {
 			action: ACTION_EVENTS.ADD_CART,
 		})
 
+		console.log(data.payload)
+
 		// TODO: Publicar el mensaje por rabbitmq
+		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})
 
-	app.delete('/wishlist/:id', customerAuth, async (req, res) => {
-		const { id: itemId } = req.params
+	app.delete('/wishlist', customerAuth, async (req, res) => {
 		const { id } = req.user
 
 		const data = await ProductsService.getProductPayload({
 			id,
-			item: itemId,
+			item: req.body,
 			action: ACTION_EVENTS.REMOVE_WISHLIST,
 		})
 
 		// TODO: Publicar el mensaje por rabbitmq
+		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})
 
-	app.delete('/cart/:id', customerAuth, async (req, res) => {
-		const { id: itemId } = req.params
+	app.delete('/cart', customerAuth, async (req, res) => {
 		const { id } = req.user
 
 		const data = await ProductsService.getProductPayload({
 			id,
-			item: itemId,
+			item: req.body,
 			action: ACTION_EVENTS.REMOVE_CART,
 		})
 
+		console.log(data.payload)
 		// TODO: Publicar el mensaje por rabbitmq
+		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})

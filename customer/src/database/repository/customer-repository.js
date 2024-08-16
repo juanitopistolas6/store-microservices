@@ -90,22 +90,27 @@ export class CustomerRepository {
 		}
 	}
 
-	static async AddToCart({ id, product }) {
+	static async ManageWishlist({ id, product, remove }) {
 		const customer = await CustomerModel.findOne({ _id: id })
 
-		if (!customer) return 'No customer found'
+		if (!customer) throw new Error('Customer not found!')
 
-		await customer.updateOne({ $push: { cart: product } })
+		const itemFound = customer.wishlist.find(
+			(item) => item._id.toString() === product._id
+		)
 
-		return await CustomerModel.findOne({ _id: id })
-	}
-
-	static async AddToWishlist({ id, product }) {
-		const customer = await CustomerModel.findOne({ _id: id })
-
-		if (!customer) return 'No customer found!'
-
-		customer.updateOne({ $push: { wishlist: product } })
+		if (remove) {
+			try {
+				await CustomerModel.updateOne(
+					{ _id: id },
+					{ $pull: { wishlist: { _id: product._id } } }
+				)
+			} catch (e) {
+				return 'Product not found!'
+			}
+		} else {
+			if (!itemFound) await customer.updateOne({ $push: { wishlist: product } })
+		}
 
 		return await CustomerModel.findOne({ _id: id })
 	}
@@ -116,33 +121,36 @@ export class CustomerRepository {
 		if (!customer) return 'No customer found'
 
 		const itemFound = customer.cart.find(
-			(item) => item._id.toString() === product._id
+			(item) => item.product._id.toString() === product.product._id
 		)
 
 		if (remove) {
+			// REMOVER
 			if (!itemFound) throw new Error('Product was not found in customers cart')
 
 			const unitsToUpdate = itemFound.units - units
 
 			if (unitsToUpdate <= 0) {
-				CustomerModel.updateOne(
-					{ _id: id, 'cart.product._id': product._id },
-					{ $pull: { cart: { 'product._id': product._id } } }
+				await CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product.product._id },
+					{ $pull: { cart: { 'product._id': product.product._id } } }
 				)
 			} else {
-				CustomerModel.updateOne(
-					{ _id: id, 'cart.product._id': product._id },
+				console.log(`UnitsToUpdate: ${unitsToUpdate}`)
+				await CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product.product._id },
 					{ $set: { 'cart.$.units': unitsToUpdate } }
 				)
 			}
 		} else {
+			// AÑADIR
 			if (itemFound) {
-				CustomerModel.updateOne(
-					{ _id: id, 'cart.product._id': product._id },
+				await CustomerModel.updateOne(
+					{ _id: id, 'cart.product._id': product.product._id },
 					{ $set: { 'cart.$.units': itemFound.units + units } }
 				)
 			} else {
-				CustomerModel.updateOne({ _id: id }, { $push: { cart: product } })
+				await CustomerModel.updateOne({ _id: id }, { $push: { cart: product } })
 			}
 		}
 

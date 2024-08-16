@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt'
 import jwb from 'jsonwebtoken'
 import config from '../config/index.js'
+import amqplib from 'amqplib'
 
-const { APP_SECRET, MSG_URL, EXCHANGE_NAME } = config
+const { APP_SECRET, MSG_URL, EXCHANGE_NAME, CUSTOMER_SERVICE } = config
 
 export const GenerateSalt = async () => {
 	return await bcrypt.genSalt()
@@ -73,7 +74,7 @@ export const createChannel = async () => {
 export const SubscribeMessage = async (channel, service) => {
 	await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true })
 	const q = await channel.assertQueue('', { exclusive: true })
-	console.log(` Waiting for messages in queue: ${q.queue}`)
+	console.log(`🚀 Waiting for messages in queue: ${q.queue}`)
 
 	channel.bindQueue(q.queue, EXCHANGE_NAME, CUSTOMER_SERVICE)
 

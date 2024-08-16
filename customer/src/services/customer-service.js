@@ -14,7 +14,10 @@ import {
 } from '../utils/index.js'
 import { CustomerRepository } from '../database/repository/customer-repository.js'
 import { ACTION_EVENTS } from '../../../product/src/utils/types.js'
-import { validatePartialProduct } from '../schemes/product.js'
+import {
+	validatePartialProduct,
+	validateUnitProducts,
+} from '../schemes/product.js'
 
 export class CustomerService {
 	static async signUp(paylod) {
@@ -142,23 +145,34 @@ export class CustomerService {
 		}
 	}
 
-	async updateCart({ id, product }) {
-		const data = validatePartialProduct(product)
+	async updateCart({ id, product, units, remove }) {
+		const data = validateUnitProducts({ product, units })
 
-		const result = await CustomerRepository.AddToCart({
-			id,
-			product: data.data,
-		})
+		if (data.error) return FormateData(data.error, 'error')
 
-		return FormateData(result, 'data')
+		try {
+			const result = await CustomerRepository.ManageCart({
+				id,
+				product: data.data,
+				units,
+				remove,
+			})
+
+			return FormateData(result, 'data')
+		} catch (e) {
+			return FormateData(e.message, 'error')
+		}
 	}
 
-	async updateWishlist({ id, product }) {
+	async updateWishlist({ id, product, remove }) {
 		const data = validatePartialProduct(product)
 
-		const result = await CustomerRepository.AddToWishlist({
+		if (data.error) return FormateData(data.error, 'error')
+
+		const result = await CustomerRepository.ManageWishlist({
 			id,
 			product: data.data,
+			remove,
 		})
 
 		return FormateData(result, 'data')
@@ -175,12 +189,16 @@ export class CustomerService {
 
 		switch (event) {
 			case ACTION_EVENTS.ADD_WISHLIST:
-				this.updateWishlist({ id, product })
+				this.updateWishlist({ id, product, remove: false })
 				break
 			case ACTION_EVENTS.ADD_CART:
-				this.updateCart({ id, product })
+				this.updateCart({ id, product, units, remove: false })
 				break
 			case ACTION_EVENTS.REMOVE_CART:
+				this.updateCart({ id, product, units, remove: true })
+				break
+			case ACTION_EVENTS.REMOVE_WISHLIST:
+				this.updateWishlist({ id, product, remove: true })
 				break
 		}
 	}

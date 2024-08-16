@@ -1,4 +1,5 @@
 import zod from 'zod'
+import { ProductCategory } from './category.js'
 
 const productSchema = zod.object({
 	_id: zod.string(),
@@ -12,5 +13,21 @@ const productSchema = zod.object({
 })
 
 export function validatePartialProduct(object) {
-	return productSchema.partial().safeParse(object)
+	const payloadScheme = productSchema.pick({
+		_id: true,
+		name: true,
+		banner: true,
+		price: true,
+	})
+
+	return payloadScheme.safeParse(object)
+}
+
+export function validateUnitProducts(object) {
+	const payloadScheme = zod.object({
+		product: productSchema.partial(),
+		units: zod.number(),
+	})
+
+	return payloadScheme.safeParse(object)
 }
