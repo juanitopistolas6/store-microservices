@@ -1,10 +1,19 @@
 import { ShoppingServices } from '../services/shopping-service.js'
+import { PublishMessage, SubscribeMessage } from '../utils/index.js'
 import { customerAuth } from './middleware/customer-auth.js'
+import { ENV_KEYS } from '../config/index.js'
+
+const { CUSTOMER_SERVICE } = ENV_KEYS
 
 export default async (app, channel) => {
+	const service = new ShoppingServices()
+
+	SubscribeMessage(channel, service)
+
 	app.get('/whoami', (req, res) => {
 		return res.json({ message: 'your a customer :)' })
 	})
+
 	app.get('/order', customerAuth, async (req, res) => {
 		const { id } = req.user
 
@@ -18,7 +27,9 @@ export default async (app, channel) => {
 
 		const data = await ShoppingServices.createOrder({ id })
 
-		return res.json(data)
+		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
+
+		return res.json(data.data)
 	})
 
 	app.post('/cart', customerAuth, async (req, res) => {

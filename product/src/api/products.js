@@ -4,7 +4,7 @@ import { ACTION_EVENTS } from '../utils/types.js'
 import { customerAuth } from './middleware/customer-auth.js'
 import KEYS from '../config/index.js'
 
-const { CUSTOMER_SERVICE } = KEYS
+const { CUSTOMER_SERVICE, SHOPPING_SERVICE } = KEYS
 
 export default async (app, channel) => {
 	app.get('/products', customerAuth, async (req, res) => {
@@ -67,10 +67,9 @@ export default async (app, channel) => {
 			action: ACTION_EVENTS.ADD_CART,
 		})
 
-		console.log(data.payload)
-
 		// TODO: Publicar el mensaje por rabbitmq
 		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
+		PublishMessage(channel, SHOPPING_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})
@@ -102,6 +101,7 @@ export default async (app, channel) => {
 		console.log(data.payload)
 		// TODO: Publicar el mensaje por rabbitmq
 		PublishMessage(channel, CUSTOMER_SERVICE, data.payload)
+		PublishMessage(channel, SHOPPING_SERVICE, data.payload)
 
 		return res.json(data.data)
 	})

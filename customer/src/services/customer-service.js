@@ -18,6 +18,7 @@ import {
 	validatePartialProduct,
 	validateUnitProducts,
 } from '../schemes/product.js'
+import { validateOrder } from '../schemes/order.js'
 
 export class CustomerService {
 	static async signUp(paylod) {
@@ -178,6 +179,16 @@ export class CustomerService {
 		return FormateData(result, 'data')
 	}
 
+	async updateOrders({ id, product }) {
+		const data = validateOrder(product)
+
+		if (data.error) return FormateData(data.error, 'error')
+
+		const result = await CustomerRepository.CreateOrder({ id, order: product })
+
+		return FormateData(result, 'data')
+	}
+
 	SubscribeEvents = async (payload) => {
 		console.log('Triggering.... Customer Events')
 
@@ -199,6 +210,11 @@ export class CustomerService {
 				break
 			case ACTION_EVENTS.REMOVE_WISHLIST:
 				this.updateWishlist({ id, product, remove: true })
+				break
+			case ACTION_EVENTS.CREATE_ORDER:
+				this.updateOrders({ id, product })
+				break
+			default:
 				break
 		}
 	}

@@ -7,7 +7,6 @@ const productSchema = zod.object({
 	banner: zod.string(),
 	category: zod.string(),
 	price: zod.number(),
-	supplier: zod.string(),
 	units: zod.number(),
 })
 
@@ -30,5 +29,9 @@ export function validateProductArray(object) {
 }
 
 export function validateProduct(object) {
+	return productSchemeObject.safeParse(object)
+}
+
+export function validateProductObject(object) {
 	return productSchemeObject.safeParse(object)
 }

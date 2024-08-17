@@ -3,8 +3,9 @@ import cors from 'cors'
 import { ENV_KEYS } from './config/index.js'
 import { connectDatabase } from './database/connection.js'
 import shoppingApp from './api/shopping.js'
+import { createChannel } from './utils/index.js'
 
-const initServer = () => {
+const initServer = async () => {
 	const { PORT } = ENV_KEYS
 
 	const app = express()
@@ -12,9 +13,11 @@ const initServer = () => {
 	app.use(express.json())
 	app.use(cors())
 
+	const channel = await createChannel()
+
 	connectDatabase()
 
-	shoppingApp(app, '')
+	shoppingApp(app, channel)
 
 	app
 		.listen(PORT, () => {

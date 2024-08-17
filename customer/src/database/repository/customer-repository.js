@@ -1,4 +1,3 @@
-import customer from '../models/customer.js'
 import { CustomerModel, AddressModel } from '../models/index.js'
 
 export class CustomerRepository {
@@ -155,5 +154,18 @@ export class CustomerRepository {
 		}
 
 		return await CustomerModel.findOne({ _id: id })
+	}
+
+	static async CreateOrder({ id, order }) {
+		const customer = await CustomerModel.findOne({ _id: id })
+
+		if (!customer) throw new Error('Cusomter not found.')
+
+		await customer.updateOne({
+			$push: { orders: order },
+			$set: { cart: [] },
+		})
+
+		return CustomerModel.findOne({ _id: id })
 	}
 }
