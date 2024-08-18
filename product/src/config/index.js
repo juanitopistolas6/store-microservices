@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 
-if (process.env.NODE_ENV.trim() === 'prod') {
+if (process.env.NODE_ENV === 'prod') {
 	const path = `./.env.${process.env.NODE_ENV}`
 
 	dotenv.config({ path })

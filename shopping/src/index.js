@@ -13,9 +13,9 @@ const initServer = async () => {
 	app.use(express.json())
 	app.use(cors())
 
-	const channel = await createChannel()
-
 	connectDatabase()
+
+	const channel = await createChannel()
 
 	shoppingApp(app, channel)
 
