@@ -12,7 +12,7 @@ export class ProductsService {
 	static async getProducts() {
 		const result = await ProductsRepository.Products()
 
-		return FormData(result, 'data')
+		return FormateData(result, 'data')
 	}
 
 	static async getProductsCategory({ name }) {

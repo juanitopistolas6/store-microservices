@@ -18,6 +18,7 @@ const Customer = new Schema(
 		},
 		cart: [
 			{
+				_id: false,
 				product: {
 					_id: { type: String, required: true },
 					name: { type: String, required: true },
