@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   mongodb:
     image: mongo
@@ -16,6 +16,12 @@ services:
       - 5672:5672
       - 15672:15672
     container_name: rabbitmq
+    healthcheck:
+      test: "curl -u guest:guest -f http://localhost:15672/api/healthchecks/node"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       - my-network
 
@@ -28,8 +34,11 @@ services:
     ports:
       - 8002:8002
     depends_on:  
-      - mongodb
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+
     volumes:
       - .:/app
       - /app/product/node_modules
@@ -39,12 +48,6 @@ services:
       - my-network
 
   customer:
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
     build:
       dockerfile: Dockerfile
       context: ./customer
@@ -53,8 +56,10 @@ services:
       - 8001:8001
     restart: on-failure
     depends_on:
-      - mongodb
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
     volumes:
       - .:/app
       - /app/customer/node_modules
@@ -64,12 +69,6 @@ services:
       - my-network
 
   shopping:
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
     build: 
       dockerfile: Dockerfile
       context: ./shopping
@@ -78,8 +77,10 @@ services:
     ports:
       - 8003:8003
     depends_on:
-      - mongodb
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
     volumes:
       - .:/app
       - /app/shopping/node_modules
